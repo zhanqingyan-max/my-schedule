@@ -88,48 +88,60 @@ function createWeekGrid() {
   const weekdays = ['一', '二', '三', '四', '五', '六', '日'];
   const todayInfo = dateToWeekInfo(today());
   const todayDay = todayInfo ? todayInfo.dayOfWeek : null;
+  const { mon } = weekRange(currentWeek);
 
-  // Corner cell
+  // Corner cell (row 1, col 1)
   const corner = document.createElement('div');
   corner.className = 'grid-corner';
+  corner.style.gridColumn = '1';
+  corner.style.gridRow = '1';
   grid.appendChild(corner);
 
-  // Day headers
+  // Day headers with dates (row 1, cols 2-8)
   weekdays.forEach((d, i) => {
     const dayNum = i + 1;
     const isToday = dayNum === todayDay;
+    const date = new Date(mon);
+    date.setDate(mon.getDate() + i);
+    const dateStr = `${date.getMonth() + 1}/${date.getDate()}`;
+
     const header = document.createElement('div');
     header.className = `grid-day-header ${isToday ? 'today' : ''}`;
-    header.textContent = d;
+    header.style.gridColumn = `${dayNum + 1}`;
+    header.style.gridRow = '1';
+    header.innerHTML = `<div>${d}</div><div class="header-date">${dateStr}</div>`;
     grid.appendChild(header);
   });
 
-  // Time labels and cells for each period
+  // Time labels (col 1, rows 2-15)
   for (let period = 1; period <= 14; period++) {
     const timeLabel = document.createElement('div');
     timeLabel.className = 'grid-time-label';
     timeLabel.textContent = PERIOD_TIMES[period].start;
+    timeLabel.style.gridColumn = '1';
+    timeLabel.style.gridRow = `${period + 1}`;
     grid.appendChild(timeLabel);
+  }
 
+  // Empty cells (cols 2-8, rows 2-15)
+  for (let period = 1; period <= 14; period++) {
     for (let day = 1; day <= 7; day++) {
       const cell = document.createElement('div');
       cell.className = 'grid-cell';
-      cell.dataset.day = day;
-      cell.dataset.period = period;
+      cell.style.gridColumn = `${day + 1}`;
+      cell.style.gridRow = `${period + 1}`;
       grid.appendChild(cell);
     }
   }
 
-  // Add course blocks as direct children of grid
+  // Course blocks with explicit grid positions
   for (let day = 1; day <= 7; day++) {
     const courses = coursesOnWeek(currentWeek, day);
     courses.forEach(course => {
       const block = document.createElement('div');
       block.className = 'course-block';
       block.style.backgroundColor = course.color;
-      // Grid column: day + 1 (because first column is time labels)
-      block.style.gridColumn = day + 1;
-      // Grid row: period + 1 (because first row is headers)
+      block.style.gridColumn = `${day + 1}`;
       block.style.gridRow = `${course.startPeriod + 1} / span ${course.endPeriod - course.startPeriod + 1}`;
       block.innerHTML = `<div class="course-name">${course.name}</div>`;
       block.addEventListener('click', () => showCourseDetail(course));
