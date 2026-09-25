@@ -90,7 +90,7 @@ export const COURSES = [
     color: 'var(--color-course-3)',
     dayOfWeek: 4,
     startPeriod: 3,
-    endPeriod: 5,
+    endPeriod: 4,
     startWeek: 1,
     endWeek: 19,
     classroom: '教学二号楼',
