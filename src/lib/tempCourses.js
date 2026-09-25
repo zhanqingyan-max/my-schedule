@@ -10,6 +10,7 @@ function generateId() {
 // 获取所有临时课程
 export function getTempCourses() {
   try {
+    if (typeof localStorage === 'undefined') return [];
     const data = localStorage.getItem(STORAGE_KEY);
     return data ? JSON.parse(data) : [];
   } catch (e) {
@@ -21,6 +22,7 @@ export function getTempCourses() {
 // 保存临时课程列表
 function saveTempCourses(courses) {
   try {
+    if (typeof localStorage === 'undefined') return;
     localStorage.setItem(STORAGE_KEY, JSON.stringify(courses));
   } catch (e) {
     console.error('保存临时课程失败:', e);
