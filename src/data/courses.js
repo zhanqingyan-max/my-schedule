@@ -1,4 +1,5 @@
 import { dateToWeekInfo, isHolidayWeek } from '../lib/date.js';
+import { getTempCourses } from '../lib/tempCourses.js';
 
 // 课程种子数据（PRD §5.3）
 // 待确认项已标注 note 字段
@@ -301,18 +302,53 @@ export function coursesOnDate(dateStr) {
   if (!weekInfo) return [];
   if (isHolidayWeek(weekInfo.week)) return [];
 
-  return COURSES.filter(c =>
+  const baseCourses = COURSES.filter(c =>
     c.dayOfWeek === dayOfWeek &&
     c.startWeek <= weekInfo.week &&
     c.endWeek >= weekInfo.week
   );
+
+  // 获取临时课程
+  const tempCourses = getTempCourses().filter(c =>
+    c.dayOfWeek === dayOfWeek &&
+    c.startWeek <= weekInfo.week &&
+    c.endWeek >= weekInfo.week
+  );
+
+  // 过滤掉被临时课程覆盖的正式课程（相同时间段）
+  const filteredBase = baseCourses.filter(base =>
+    !tempCourses.some(temp =>
+      temp.startPeriod <= base.endPeriod &&
+      temp.endPeriod >= base.startPeriod
+    )
+  );
+
+  return [...filteredBase, ...tempCourses];
 }
 
 export function coursesOnWeek(week, dayOfWeek) {
   if (isHolidayWeek(week)) return [];
-  return COURSES.filter(c =>
+  
+  const baseCourses = COURSES.filter(c =>
     c.dayOfWeek === dayOfWeek &&
     c.startWeek <= week &&
     c.endWeek >= week
   );
+
+  // 获取临时课程
+  const tempCourses = getTempCourses().filter(c =>
+    c.dayOfWeek === dayOfWeek &&
+    c.startWeek <= week &&
+    c.endWeek >= week
+  );
+
+  // 过滤掉被临时课程覆盖的正式课程（相同时间段）
+  const filteredBase = baseCourses.filter(base =>
+    !tempCourses.some(temp =>
+      temp.startPeriod <= base.endPeriod &&
+      temp.endPeriod >= base.startPeriod
+    )
+  );
+
+  return [...filteredBase, ...tempCourses];
 }

@@ -2,6 +2,8 @@ import { dateToWeekInfo, weekRange, isHolidayWeek, formatCN, today, formatDateIS
 import { coursesOnWeek } from '../data/courses.js';
 import { PERIOD_TIMES, periodsToRange } from '../data/periods.js';
 import { showCourseDetail } from '../components/courseDetail.js';
+import { showTempCourseForm, showTempCourseList } from '../components/tempCourseForm.js';
+import { getTempCourses } from '../lib/tempCourses.js';
 
 let currentWeek = null;
 let currentDayView = null; // null = week view, 1-7 = day view for that day
@@ -34,6 +36,10 @@ function render(container) {
   const viewToggle = createViewToggle();
   page.appendChild(viewToggle);
 
+  // Temp course action buttons
+  const actionButtons = createActionButtons();
+  page.appendChild(actionButtons);
+
   // Content
   const content = document.createElement('div');
   content.className = 'timetable-content';
@@ -53,6 +59,7 @@ function render(container) {
   // Bind events
   bindWeekSwitcherEvents(page);
   bindViewToggleEvents(page);
+  bindActionButtonsEvents(page);
 }
 
 function createWeekSwitcher() {
@@ -80,6 +87,19 @@ function createViewToggle() {
   div.innerHTML = `
     <button class="view-btn" data-view="week">周</button>
     <button class="view-btn" data-view="day">日</button>
+  `;
+  return div;
+}
+
+function createActionButtons() {
+  const tempCourseCount = getTempCourses().length;
+  const div = document.createElement('div');
+  div.className = 'temp-course-actions';
+  div.innerHTML = `
+    <button class="temp-course-btn" id="btn-add-temp">+ 加课</button>
+    <button class="temp-course-btn" id="btn-manage-temp">
+      管理临时课程${tempCourseCount > 0 ? ` (${tempCourseCount})` : ''}
+    </button>
   `;
   return div;
 }
@@ -142,11 +162,14 @@ function createWeekGrid() {
     const courses = coursesOnWeek(currentWeek, day);
     courses.forEach(course => {
       const block = document.createElement('div');
-      block.className = 'course-block';
+      block.className = `course-block ${course.isTemp ? 'temp-course' : ''}`;
       block.style.backgroundColor = course.color;
       block.style.gridColumn = `${day + 1}`;
       block.style.gridRow = `${course.startPeriod + 1} / span ${course.endPeriod - course.startPeriod + 1}`;
-      block.innerHTML = `<div class="course-name">${course.name}</div>`;
+      block.innerHTML = `
+        <div class="course-name">${course.name}</div>
+        ${course.isTemp ? '<div class="temp-badge">临时</div>' : ''}
+      `;
       block.addEventListener('click', () => showCourseDetail(course));
       grid.appendChild(block);
     });
@@ -207,12 +230,15 @@ function createDayList() {
       : `第${course.startPeriod}-${course.endPeriod}节`;
 
     const card = document.createElement('div');
-    card.className = 'day-course-card';
+    card.className = `day-course-card ${course.isTemp ? 'temp-course' : ''}`;
     card.style.borderLeftColor = course.color;
     card.innerHTML = `
       <div class="card-time">${start}-${end}</div>
       <div class="card-info">
-        <div class="card-name">${course.name}</div>
+        <div class="card-name">
+          ${course.name}
+          ${course.isTemp ? '<span class="temp-badge">临时</span>' : ''}
+        </div>
         <div class="card-location">${course.classroom || ''} · ${periodLabel}</div>
       </div>
     `;
@@ -250,4 +276,25 @@ function bindViewToggleEvents(page) {
       render(page.parentElement);
     });
   });
+}
+
+function bindActionButtonsEvents(page) {
+  const btnAdd = page.querySelector('#btn-add-temp');
+  const btnManage = page.querySelector('#btn-manage-temp');
+
+  if (btnAdd) {
+    btnAdd.addEventListener('click', () => {
+      showTempCourseForm(currentWeek, currentDayView || 1, null, () => {
+        render(page.parentElement);
+      });
+    });
+  }
+
+  if (btnManage) {
+    btnManage.addEventListener('click', () => {
+      showTempCourseList(() => {
+        render(page.parentElement);
+      });
+    });
+  }
 }
