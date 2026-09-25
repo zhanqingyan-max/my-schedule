@@ -113,7 +113,7 @@ export const COURSES = [
     dayOfWeek: 4,
     startPeriod: 6,
     endPeriod: 9,
-    startWeek: 4,
+    startWeek: 3,
     endWeek: 10,
     classroom: '科研一号楼1040',
   },

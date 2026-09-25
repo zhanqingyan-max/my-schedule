@@ -9,13 +9,13 @@ global.localStorage = {
 
 import { coursesOnWeek } from '../src/data/courses.js';
 
-// Test 1: 习近平课程第4周应该有
-const xiW4 = coursesOnWeek(4, 4).find(c => c.id === 'xi-jinping-thought');
-console.assert(xiW4, '第4周周四应有习近平课程');
-
-// Test 2: 习近平课程第3周不应该有
+// Test 1: 习近平课程第3周应该有
 const xiW3 = coursesOnWeek(3, 4).find(c => c.id === 'xi-jinping-thought');
-console.assert(!xiW3, '第3周周四不应有习近平课程');
+console.assert(xiW3, '第3周周四应有习近平课程');
+
+// Test 2: 习近平课程第2周不应该有
+const xiW2 = coursesOnWeek(2, 4).find(c => c.id === 'xi-jinping-thought');
+console.assert(!xiW2, '第2周周四不应有习近平课程');
 
 // Test 3: 习近平课程第10周应该有
 const xiW10 = coursesOnWeek(10, 4).find(c => c.id === 'xi-jinping-thought');
