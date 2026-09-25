@@ -4,9 +4,12 @@ import { PERIOD_TIMES, periodsToRange } from '../data/periods.js';
 import { showCourseDetail } from '../components/courseDetail.js';
 
 let currentWeek = null;
-let currentDayView = 1; // 1-7, Monday-Sunday
+let currentDayView = null; // null = week view, 1-7 = day view for that day
+let initialized = false;
 
 function initWeek() {
+  if (initialized) return;
+  initialized = true;
   const weekInfo = dateToWeekInfo(today());
   currentWeek = weekInfo ? weekInfo.week : 1;
   currentDayView = weekInfo ? weekInfo.dayOfWeek : 1;
@@ -36,7 +39,7 @@ function render(container) {
   content.className = 'timetable-content';
 
   const isMobile = window.innerWidth < 768;
-  const showWeekView = !isMobile || !page.dataset.dayView;
+  const showWeekView = !isMobile || currentDayView === null;
 
   if (showWeekView) {
     content.appendChild(createWeekGrid());
@@ -170,7 +173,8 @@ function createDayView() {
     chip.textContent = d;
     chip.addEventListener('click', () => {
       currentDayView = dayNum;
-      div.querySelector('.day-list').replaceWith(createDayList());
+      const dayList = div.querySelector('.day-list');
+      if (dayList) dayList.replaceWith(createDayList());
       chips.querySelectorAll('.day-chip').forEach((c, idx) => {
         c.classList.toggle('active', idx + 1 === dayNum);
       });
@@ -237,7 +241,12 @@ function bindWeekSwitcherEvents(page) {
 function bindViewToggleEvents(page) {
   page.querySelectorAll('[data-view]').forEach(btn => {
     btn.addEventListener('click', () => {
-      page.dataset.dayView = btn.dataset.view === 'day' ? 'true' : '';
+      if (btn.dataset.view === 'day') {
+        const weekInfo = dateToWeekInfo(today());
+        currentDayView = weekInfo ? weekInfo.dayOfWeek : 1;
+      } else {
+        currentDayView = null;
+      }
       render(page.parentElement);
     });
   });

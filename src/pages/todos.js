@@ -154,8 +154,8 @@ function createTodoItem(todo, isOverdue = false, isCompleted = false) {
   checkbox.checked = todo.done;
   checkbox.addEventListener('change', () => {
     toggleDone(todo.id);
-    item.parentElement.parentElement.parentElement.querySelector('.todos-page') &&
-      renderTodos(item.closest('.todos-page').parentElement);
+    const page = item.closest('.todos-page');
+    if (page) renderTodos(page.parentElement);
   });
 
   const content = document.createElement('div');

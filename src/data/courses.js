@@ -1,4 +1,4 @@
-import { dateToWeekInfo } from '../lib/date.js';
+import { dateToWeekInfo, isHolidayWeek } from '../lib/date.js';
 
 // 课程种子数据（PRD §5.3）
 // 待确认项已标注 note 字段
@@ -211,6 +211,7 @@ export function coursesOnDate(dateStr) {
   const dayOfWeek = date.getDay() || 7; // 周日=7
   const weekInfo = dateToWeekInfo(dateStr);
   if (!weekInfo) return [];
+  if (isHolidayWeek(weekInfo.week)) return [];
 
   return COURSES.filter(c =>
     c.dayOfWeek === dayOfWeek &&
@@ -220,6 +221,7 @@ export function coursesOnDate(dateStr) {
 }
 
 export function coursesOnWeek(week, dayOfWeek) {
+  if (isHolidayWeek(week)) return [];
   return COURSES.filter(c =>
     c.dayOfWeek === dayOfWeek &&
     c.startWeek <= week &&
