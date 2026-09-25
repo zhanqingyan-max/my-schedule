@@ -114,7 +114,7 @@ export const COURSES = [
     endPeriod: 9,
     startWeek: 7,
     endWeek: 10,
-    classroom: '科研一号楼',
+    classroom: '科研一号楼1040',
   },
   {
     id: 'national-security',
@@ -203,6 +203,28 @@ export const COURSES = [
     startWeek: 6,
     endWeek: 17,
     classroom: '教学二号楼',
+  },
+  {
+    id: 'chinese-red-songs',
+    name: '中国红色歌曲赏析与实践',
+    color: 'var(--color-course-2)',
+    dayOfWeek: 3,
+    startPeriod: 11,
+    endPeriod: 12,
+    startWeek: 1,
+    endWeek: 19,
+    classroom: '科研一号楼5058',
+  },
+  {
+    id: 'french-practical-computer',
+    name: '计算机综合法语实训(1)',
+    color: 'var(--color-course-3)',
+    dayOfWeek: 4,
+    startPeriod: 5,
+    endPeriod: 5,
+    startWeek: 1,
+    endWeek: 19,
+    classroom: '教学1号楼B1001',
   },
 ];
 
