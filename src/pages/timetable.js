@@ -85,54 +85,56 @@ function createWeekGrid() {
   const grid = document.createElement('div');
   grid.className = 'week-grid';
 
-  // Header row: Mon Sun
-  const header = document.createElement('div');
-  header.className = 'grid-header';
   const weekdays = ['一', '二', '三', '四', '五', '六', '日'];
   const todayInfo = dateToWeekInfo(today());
   const todayDay = todayInfo ? todayInfo.dayOfWeek : null;
 
-  header.innerHTML = '<div class="grid-corner"></div>';
+  // Corner cell
+  const corner = document.createElement('div');
+  corner.className = 'grid-corner';
+  grid.appendChild(corner);
+
+  // Day headers
   weekdays.forEach((d, i) => {
     const dayNum = i + 1;
     const isToday = dayNum === todayDay;
-    header.innerHTML += `<div class="grid-day-header ${isToday ? 'today' : ''}">${d}</div>`;
+    const header = document.createElement('div');
+    header.className = `grid-day-header ${isToday ? 'today' : ''}`;
+    header.textContent = d;
+    grid.appendChild(header);
   });
-  grid.appendChild(header);
 
-  // Period rows
+  // Time labels and cells for each period
   for (let period = 1; period <= 14; period++) {
-    const row = document.createElement('div');
-    row.className = 'grid-row';
-
     const timeLabel = document.createElement('div');
     timeLabel.className = 'grid-time-label';
     timeLabel.textContent = PERIOD_TIMES[period].start;
-    row.appendChild(timeLabel);
+    grid.appendChild(timeLabel);
 
     for (let day = 1; day <= 7; day++) {
       const cell = document.createElement('div');
       cell.className = 'grid-cell';
       cell.dataset.day = day;
       cell.dataset.period = period;
-
-      const courses = coursesOnWeek(currentWeek, day);
-      const course = courses.find(c => c.startPeriod === period);
-
-      if (course) {
-        const block = document.createElement('div');
-        block.className = 'course-block';
-        block.style.backgroundColor = course.color;
-        block.style.gridRow = `span ${course.endPeriod - course.startPeriod + 1}`;
-        block.innerHTML = `<div class="course-name">${course.name}</div>`;
-        block.addEventListener('click', () => showCourseDetail(course));
-        cell.appendChild(block);
-      }
-
-      row.appendChild(cell);
+      grid.appendChild(cell);
     }
+  }
 
-    grid.appendChild(row);
+  // Add course blocks as direct children of grid
+  for (let day = 1; day <= 7; day++) {
+    const courses = coursesOnWeek(currentWeek, day);
+    courses.forEach(course => {
+      const block = document.createElement('div');
+      block.className = 'course-block';
+      block.style.backgroundColor = course.color;
+      // Grid column: day + 1 (because first column is time labels)
+      block.style.gridColumn = day + 1;
+      // Grid row: period + 1 (because first row is headers)
+      block.style.gridRow = `${course.startPeriod + 1} / span ${course.endPeriod - course.startPeriod + 1}`;
+      block.innerHTML = `<div class="course-name">${course.name}</div>`;
+      block.addEventListener('click', () => showCourseDetail(course));
+      grid.appendChild(block);
+    });
   }
 
   return grid;
