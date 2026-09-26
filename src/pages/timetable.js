@@ -137,10 +137,20 @@ function createWeekGrid() {
   });
 
   // Time labels (col 1, rows 2-15)
+  const sectionStarts = { 1: '上午', 6: '下午', 11: '晚上' };
+
   for (let period = 1; period <= 14; period++) {
     const timeLabel = document.createElement('div');
     timeLabel.className = 'grid-time-label';
-    timeLabel.textContent = PERIOD_TIMES[period].start;
+
+    // Add section label for the first period of each section
+    const sectionLabel = sectionStarts[period];
+    if (sectionLabel) {
+      timeLabel.innerHTML = `<div class="section-name">${sectionLabel}</div><div>${PERIOD_TIMES[period].start}</div>`;
+    } else {
+      timeLabel.textContent = PERIOD_TIMES[period].start;
+    }
+
     timeLabel.style.gridColumn = '1';
     timeLabel.style.gridRow = `${period + 1}`;
     grid.appendChild(timeLabel);
@@ -253,9 +263,11 @@ function bindWeekSwitcherEvents(page) {
   page.querySelectorAll('[data-action]').forEach(btn => {
     btn.addEventListener('click', () => {
       const action = btn.dataset.action;
-      if (action === 'prev') currentWeek--;
-      else if (action === 'next') currentWeek++;
-      else if (action === 'today') {
+      if (action === 'prev') {
+        if (currentWeek > 1) currentWeek--;
+      } else if (action === 'next') {
+        currentWeek++;
+      } else if (action === 'today') {
         const weekInfo = dateToWeekInfo(today());
         currentWeek = weekInfo ? weekInfo.week : 1;
       }
